@@ -3,7 +3,7 @@
 
 import os, random, string
 
-from flask import Flask
+from flask import Flask, make_response
 from flask import render_template
 from flask import request
 from flask import redirect
@@ -46,17 +46,19 @@ def add_user():
 def auth():
     username = request.values.get('username')
     password = request.values.get('password')
-    account = User.query.filter_by(username=username, password=password).first()
+    account = username and password
+    # account = User.query.filter_by(username=username, password=password).first()
     
     if account:
         token = ''.join(random.choices(string.ascii_uppercase + string.digits, k=15))
         User.query.filter_by(username=username, password=password).update({'token': token})
         db.session.commit()
-        data = {"msg": "Login berhasil!!", "token": token}
-        return jsonify(data)
-    else:
-        data = {'msg': 'Login gagal!!'}
-        return jsonify(data)
+        return make_response(jsonify({"Token api" : token}), 200)
+        # data = {"msg": "Login berhasil!!", "token": token}
+    #     return jsonify(data)
+    # else:
+    #     data = {'msg': 'Login gagal!!'}
+    return jsonify({"msg" : "Info Token Gagal"})
 
 
 @app.route('/api/v2/users/info', methods=['POST'])
